@@ -1,12 +1,25 @@
-# Atlas Virtual da Teoria e Crítica Literárias — Standalone
+# Atlas da Teoria Literária
 
-Página única, estática, sem dependências, com o panorama comparativo das correntes de teoria literária do século XX–XXI usado na disciplina **IELit — Introdução aos Estudos Literários** (UNIVISA/Letras, 2026.2). Cobre 17 períodos, 204 correntes teóricas, 47 termos de glossário e uma tabela de síntese transversal final.
+Site estático de página única com o panorama comparativo das correntes de teoria literária do século XX–XXI, usado na disciplina **IELit — Introdução aos Estudos Literários** (UNIVISA/Letras, 2026.2). Cobre 17 períodos, 204 correntes teóricas, 47 termos de glossário e uma tabela de síntese transversal final.
 
-## Como abrir
+**Live:** _(adicionar aqui a URL depois do primeiro deploy no Vercel)_
 
-Dê duplo clique em **`Atlas Virtual de Literatura - Standalone.html`**. Abre em qualquer navegador, sem internet, sem servidor, sem instalação. A pasta `assets/` precisa continuar ao lado do `.html` — é de lá que vêm as imagens de cada período e a logo da UNIVISA.
+## Stack
 
-Para compartilhar com alunos: copie **o `.html` + a pasta `assets/`** juntos (ex.: zipando os dois). Sem a pasta `assets/`, o texto continua íntegro, mas as imagens de período e a logo aparecem quebradas.
+Nenhuma. É HTML + CSS + JS puro, sem framework, sem build step, sem dependências — `index.html` é a página inteira. Isso é proposital: qualquer navegador abre o arquivo direto do disco, e qualquer host estático (Vercel incluso) o serve sem nenhuma configuração de build.
+
+## Estrutura do repositório
+
+```
+.
+├── index.html          # a página inteira — busca, sumário, 204 cartões, glossário, síntese
+├── assets/
+│   ├── periods/I.png … XVII.png   # uma imagem por período
+│   ├── univisa-logo.png
+│   └── hero-emblem.png
+├── vercel.json          # cache longo para /assets, URLs limpas, headers básicos de segurança
+└── README.md
+```
 
 ## O que tem na página
 
@@ -17,28 +30,32 @@ Para compartilhar com alunos: copie **o `.html` + a pasta `assets/`** juntos (ex
 - **Síntese transversal** — tabela comparativa dos grandes paradigmas ao final.
 - Leitura por rolagem com revelação suave por seção, aba de período que acompanha o scroll, botão de voltar ao topo.
 
-## Arquivos da pasta
+## Rodar localmente
 
-| Arquivo/pasta | O que é |
-| --- | --- |
-| `Atlas Virtual de Literatura - Standalone.html` | **O produto final.** HTML+CSS+JS puro, ~925 KB, sem framework nem runtime externo. |
-| `assets/` | Imagens que o standalone consome: `assets/periods/I.png`…`XVII.png` (uma por período) + `univisa-logo.png` + `hero-emblem.png`. |
-| `Atlas Virtual de Literatura.zip` | Export do canvas de origem no Claude Design (`Atlas.dc.html` + `atlas-data.js` + `glossary.js` + o design system "Organic" em `_ds/`). É a **fonte editável** — qualquer atualização de conteúdo ou visual nasce aqui e depois é regerada para o standalone (ver abaixo). |
-| `Atlas Virtual de Literatura - Standalone (export Claude Design, bundler).html` | Export antigo, gerado direto pelo botão "download standalone" do Claude Design. **Evite usar** — ver aviso abaixo. Mantido só como histórico. |
-| `1.png`…`17.png`, `ChatGPT Image…png` | Material de referência/rascunho usado na produção das imagens de período; não são consumidos pela página. |
-| `Asimov Academy Design System.html` | Referência visual externa (site real da Asimov Academy) usada como inspiração pontual para os toques "premium" (glow no botão, sombras em camada, revelação por scroll) — não é parte do produto. |
+Não precisa de servidor: dê duplo clique em `index.html`. Se preferir servir via HTTP (recomendado só para testar comportamento igual ao de produção, ex. cache headers), qualquer servidor estático funciona:
 
-## ⚠️ Por que existem dois arquivos "Standalone"
+```bash
+npx serve .
+```
 
-O botão de export "standalone" do Claude Design gera uma página do tipo *bundler*: ela guarda todo o conteúdo (inclusive as imagens, em base64) dentro de um `<script>` gigante que só vira página de verdade depois de um passo de descompactação em JavaScript, na hora de abrir. Esse formato é frágil no Windows — pode abrir em branco por bloqueio de script local, sem avisar o motivo, mesmo com o conteúdo intacto por dentro. Foi o que aconteceu com o arquivo marcado `(export Claude Design, bundler)`.
+## Deploy no Vercel
 
-O `Atlas Virtual de Literatura - Standalone.html` atual foi **reconstruído do zero como HTML/CSS/JS estático de verdade** — sem manifesto, sem descompactação, sem `import()` — direto a partir dos dados reais (`atlas-data.js`/`glossary.js`) dentro do `.zip`, com as imagens como arquivos normais em `assets/`. É o que deve ser usado e distribuído.
+O repo já está pronto para importar direto, sem nenhuma configuração adicional — Vercel detecta como projeto estático (sem framework) e serve `index.html` na raiz.
 
-## Como atualizar o conteúdo (para quem for mexer depois)
+1. [vercel.com/new](https://vercel.com/new) → **Import Git Repository** → selecione `marcosdeandradefilho/atlas-da-teoria-literaria`.
+2. Framework Preset: **Other** (ou deixe "No Framework Detected"). Build Command e Output Directory: deixe em branco — não há build.
+3. **Deploy.**
 
-1. Editar o conteúdo/dados **dentro do canvas do Claude Design** (reabra `Atlas Virtual de Literatura.zip` lá, ou trabalhe direto na sessão publicada) — é onde vivem `atlas-data.js` (períodos e correntes), `glossary.js` (termos) e o visual em `_ds/organic-<hash>/styles.css`.
-2. Exportar o `.zip` atualizado para esta pasta.
-3. Regenerar o `Standalone.html` a partir dele — não usar o botão "download standalone" do próprio Claude Design pelo motivo acima; peça para reconstruir via script (extrai `atlas-data.js`/`glossary.js`/`styles.css` do zip e regera o HTML/CSS/JS puro, copiando as imagens para `assets/`).
+Qualquer push em `main` gera um deploy novo automaticamente. `vercel.json` já define cache de 1 ano (imutável) para tudo em `/assets/*` — os PNGs de período nunca mudam de conteúdo sob o mesmo nome, então isso é seguro.
+
+## Como atualizar o conteúdo
+
+Este repositório é só o **produto final** (HTML/CSS/JS estático + imagens). O conteúdo (as 204 correntes, os 17 períodos, o glossário) vem de um canvas Claude Design mantido à parte, com os dados em `atlas-data.js`/`glossary.js` e o design system em `_ds/organic-<hash>/styles.css`. Para atualizar:
+
+1. Editar o conteúdo/visual no canvas Claude Design de origem.
+2. Exportar o `.zip` do canvas.
+3. Regenerar este `index.html` a partir dele — **não use o botão "download standalone" do próprio Claude Design**: esse export empacota tudo (inclusive as imagens) como base64 dentro de um `<script>` de manifesto que precisa ser descompactado em runtime, e isso falha silenciosamente em vários navegadores/SOs (abre em branco mesmo com o conteúdo intacto por dentro). Regenere via script que lê `atlas-data.js`/`glossary.js`/`styles.css` direto do zip e produz HTML/CSS/JS puro, com as imagens como arquivos normais em `assets/` — é assim que este `index.html` foi construído.
+4. Commitar e dar push em `main` — o Vercel republica sozinho.
 
 ## Créditos
 
